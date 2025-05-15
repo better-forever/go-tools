@@ -1,4 +1,4 @@
-module github.com/better-forever/utils
+module github.com/better-forever/go-utils
 
 go 1.24.1
 
