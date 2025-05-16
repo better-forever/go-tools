@@ -1,4 +1,4 @@
-package utils
+package auth
 
 import (
 	"crypto/md5"
@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"time"
 
+	types "github.com/better-forever/go-tools"
 	"github.com/dgrijalva/jwt-go"
 )
 
@@ -25,7 +26,7 @@ func Sha256(s string) string {
 // jwt 获取token , expire 为过期时间，单位为小时
 func GenToken(uuid, salt string, expire int) (string, error) {
 	expiration := time.Now().Add(time.Hour * time.Duration(expire))
-	claims := &JwtClaims{
+	claims := &types.JwtClaims{
 		UUID: uuid,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: expiration.Unix(),
@@ -41,8 +42,8 @@ func GenToken(uuid, salt string, expire int) (string, error) {
 	return jwtToken, nil
 }
 
-func ParseToken(tokenString, salt string) (*JwtClaims, error) {
-	claims := &JwtClaims{}
+func ParseToken(tokenString, salt string) (*types.JwtClaims, error) {
+	claims := &types.JwtClaims{}
 	token, err := jwt.ParseWithClaims(tokenString, claims, func(t *jwt.Token) (interface{}, error) {
 		return []byte(salt), nil
 	})
