@@ -6,9 +6,14 @@ import (
 	"encoding/hex"
 	"time"
 
-	types "github.com/better-forever/go-tools"
 	"github.com/dgrijalva/jwt-go"
 )
+
+// JwtClaims 自定义Claims
+type JwtClaims struct {
+	UUID string `json:"uuid"`
+	jwt.StandardClaims
+}
 
 // md5加密
 func Md5(s string) string {
@@ -26,7 +31,7 @@ func Sha256(s string) string {
 // jwt 获取token , expire 为过期时间，单位为小时
 func GenToken(uuid, salt string, expire int) (string, error) {
 	expiration := time.Now().Add(time.Hour * time.Duration(expire))
-	claims := &types.JwtClaims{
+	claims := JwtClaims{
 		UUID: uuid,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: expiration.Unix(),
@@ -42,8 +47,8 @@ func GenToken(uuid, salt string, expire int) (string, error) {
 	return jwtToken, nil
 }
 
-func ParseToken(tokenString, salt string) (*types.JwtClaims, error) {
-	claims := &types.JwtClaims{}
+func ParseToken(tokenString, salt string) (*JwtClaims, error) {
+	claims := JwtClaims{}
 	token, err := jwt.ParseWithClaims(tokenString, claims, func(t *jwt.Token) (interface{}, error) {
 		return []byte(salt), nil
 	})
@@ -52,5 +57,5 @@ func ParseToken(tokenString, salt string) (*types.JwtClaims, error) {
 		return nil, err
 	}
 
-	return claims, nil
+	return &claims, nil
 }
