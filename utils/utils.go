@@ -1,8 +1,7 @@
 package utils
 
 import (
-	"crypto/rand"
-	"math/big"
+	"math/rand/v2"
 	"regexp"
 )
 
@@ -41,8 +40,8 @@ func GenCode(codeType string, codeLen int) string {
 
 	code := make([]byte, codeLen)
 	for i := range code {
-		n, _ := rand.Int(rand.Reader, big.NewInt(int64(len(charset))))
-		code[i] = charset[n.Int64()]
+		// r := rand.New(rand.NewSource(GenSeed()))
+		code[i] = charset[rand.IntN(len(charset))]
 	}
 	return string(code)
 }
