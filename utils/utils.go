@@ -1,9 +1,9 @@
 package utils
 
 import (
-	"math/rand"
+	"crypto/rand"
+	"math/big"
 	"regexp"
-	"time"
 )
 
 // 用于检测字符串是否为有效的手机号格式
@@ -39,10 +39,10 @@ func GenCode(codeType string, codeLen int) string {
 		charset = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 	}
 
-	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 	code := make([]byte, codeLen)
 	for i := range code {
-		code[i] = charset[r.Intn(len(charset))]
+		n, _ := rand.Int(rand.Reader, big.NewInt(int64(len(charset))))
+		code[i] = charset[n.Int64()]
 	}
 	return string(code)
 }
