@@ -4,6 +4,7 @@ import (
 	"crypto/md5"
 	"crypto/sha256"
 	"encoding/hex"
+	"fmt"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
@@ -32,10 +33,10 @@ func Sha256(s string) string {
 func GenToken(uuid, salt string, expire int) (string, error) {
 	expiration := time.Now().Add(time.Hour * time.Duration(expire))
 	claims := JwtClaims{
-		UUID: uuid,
-		StandardClaims: jwt.StandardClaims{
+		uuid,
+		jwt.StandardClaims{
+			Issuer:    "bot-subscribe",
 			ExpiresAt: expiration.Unix(),
-			Issuer:    "",
 		},
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
@@ -49,13 +50,20 @@ func GenToken(uuid, salt string, expire int) (string, error) {
 
 func ParseToken(tokenString, salt string) (*JwtClaims, error) {
 	claims := JwtClaims{}
-	token, err := jwt.ParseWithClaims(tokenString, claims, func(t *jwt.Token) (interface{}, error) {
+	token, err := jwt.ParseWithClaims(tokenString, &claims, func(t *jwt.Token) (interface{}, error) {
 		return []byte(salt), nil
 	})
 
-	if err != nil || !token.Valid {
-		return nil, err
+	if err != nil {
+		if err == jwt.ErrSignatureInvalid {
+			return nil, fmt.Errorf("token签名无效")
+		}
+		return nil, fmt.Errorf("token 解析失败")
 	}
 
-	return &claims, nil
+	if claims, ok := token.Claims.(*JwtClaims); ok && token.Valid {
+		return claims, nil
+	}
+
+	return nil, fmt.Errorf("token已失效")
 }
