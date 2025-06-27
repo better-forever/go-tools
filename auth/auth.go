@@ -56,14 +56,14 @@ func ParseToken(tokenString, salt string) (*JwtClaims, error) {
 
 	if err != nil {
 		if err == jwt.ErrSignatureInvalid {
-			return nil, fmt.Errorf("token签名无效")
+			return nil, fmt.Errorf("伪造的token")
 		}
-		return nil, fmt.Errorf("token 解析失败")
+		return nil, fmt.Errorf("无效的token")
 	}
 
 	if claims, ok := token.Claims.(*JwtClaims); ok && token.Valid {
 		return claims, nil
 	}
 
-	return nil, fmt.Errorf("token已失效")
+	return nil, fmt.Errorf("无效的token")
 }
